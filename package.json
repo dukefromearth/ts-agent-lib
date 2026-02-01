@@ -1,6 +1,6 @@
 {
   "name": "ts-agent-lib",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Minimal, decoupled DAG execution core for agent workflows.",
   "type": "module",
   "license": "MIT",
