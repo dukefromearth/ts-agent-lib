@@ -37,11 +37,21 @@ export class StepContext {
   private readonly _executionId: string;
   private readonly _stepId: string;
   private readonly _signal?: AbortSignal;
+  private readonly _plan: Plan;
+  private readonly _getResult: (stepId: string) => StepResult | undefined;
 
-  constructor(params: { executionId: string; stepId: string; signal?: AbortSignal }) {
+  constructor(params: {
+    executionId: string;
+    stepId: string;
+    signal?: AbortSignal;
+    plan: Plan;
+    getResult: (stepId: string) => StepResult | undefined;
+  }) {
     this._executionId = params.executionId;
     this._stepId = params.stepId;
     this._signal = params.signal;
+    this._plan = params.plan;
+    this._getResult = params.getResult;
   }
 
   get executionId(): string {
@@ -58,6 +68,44 @@ export class StepContext {
 
   isCancelled(): boolean {
     return this._signal?.aborted ?? false;
+  }
+
+  getStep(stepId: string): Step {
+    return this._plan.getStep(stepId);
+  }
+
+  getResult(stepId: string): Readonly<StepResult> | undefined {
+    const res = this._getResult(stepId);
+    return res ? cloneStepResult(res) : undefined;
+  }
+
+  requireResult(stepId: string): Readonly<StepResult> {
+    const res = this.getResult(stepId);
+    if (!res) {
+      throw new Error(`missing result for step '${stepId}'`);
+    }
+    return res;
+  }
+
+  getDependencyResults(): Readonly<Record<string, StepResult>> {
+    const step = this._plan.getStep(this._stepId);
+    const deps: Record<string, StepResult> = {};
+    for (const depId of step.deps) {
+      const res = this._getResult(depId);
+      if (res && res.status === StepStatus.COMPLETED) {
+        deps[depId] = cloneStepResult(res);
+      }
+    }
+    return deps;
+  }
+
+  getDependencyOutputs<T = unknown>(): Readonly<Record<string, T>> {
+    const results = this.getDependencyResults();
+    const outputs: Record<string, T> = {};
+    for (const [depId, res] of Object.entries(results)) {
+      outputs[depId] = res.output as T;
+    }
+    return outputs;
   }
 }
 
@@ -228,7 +276,9 @@ export class DagExecutor {
       const ctx = new StepContext({
         executionId: execId,
         stepId,
-        signal: options.cancelSignal
+        signal: options.cancelSignal,
+        plan,
+        getResult: (id) => state.steps.get(id)
       });
 
       let result: StepResult;
@@ -481,4 +531,13 @@ function mergeAbortSignals(...signals: Array<AbortSignal | undefined>): AbortSig
   }
 
   return controller.signal;
+}
+
+function cloneStepResult(res: StepResult): StepResult {
+  return {
+    ...res,
+    error: res.error ? { ...res.error } : undefined,
+    startedAt: res.startedAt ? new Date(res.startedAt) : undefined,
+    finishedAt: res.finishedAt ? new Date(res.finishedAt) : undefined
+  };
 }

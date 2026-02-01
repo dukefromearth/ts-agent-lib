@@ -1,0 +1,1100 @@
+{
+  "digest": "32bb1d43a1c452bb3dc32336aa9effc7b5b5eb8cf846219675d191486f62d58f",
+  "format": "kglib.repo_graph.subgraph_and_reverse_deps.v1",
+  "forward_deps": {
+    "calls": {
+      "by_file": [],
+      "total": 0
+    },
+    "imports": {
+      "by_file": [],
+      "total": 0
+    }
+  },
+  "generated_at": "2026-02-01T21:44:39.281290+00:00",
+  "graph": {
+    "edges": [
+      {
+        "dst": "TypeAlias:src/internal/async_queue.ts:src.internal.async_queue.GetWaiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.GetWaiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "1-6:0-2",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793983+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "TypeAlias:src/internal/async_queue.ts:src.internal.async_queue.PutWaiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.PutWaiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "8-12:0-2",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793987+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "14-134:7-1",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793990+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.constructor",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.constructor",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "20-28:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793993+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.size",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.size",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "30-32:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793996+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.shift",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "34-41:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793999+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift.item",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.shift.item",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "38-38:10-35",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794002+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.put",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.put",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "43-61:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794004+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.put.waiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.put.waiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "45-45:12-45",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794007+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.tryPut",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.tryPut",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "63-79:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794010+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.tryPut.waiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.tryPut.waiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "65-65:12-45",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794012+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.get",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "81-110:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794015+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.item",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.get.item",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "83-83:12-38",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794018+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.waiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.get.waiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "93-97:12-7",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794021+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.onAbort",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.get.onAbort",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "100-103:24-9",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794023+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.removeGetWaiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "112-120:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794026+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter.idx",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.removeGetWaiter.idx",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "113-113:10-47",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794029+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.drainPutWaiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "122-133:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794031+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter.waiter",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.AsyncQueue.drainPutWaiter.waiter",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "130-130:10-43",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794034+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Function:src/internal/async_queue.ts:src.internal.async_queue.abortError",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.abortError",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "136-140:0-1",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794036+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Variable:src/internal/async_queue.ts:src.internal.async_queue.abortError.error",
+        "id": "DEFINES:src.internal.async_queue->src.internal.async_queue.abortError.error",
+        "properties": {},
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "137-137:8-36",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794039+00:00",
+          "trace_id": null
+        },
+        "src": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "type": "DEFINES"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter",
+        "id": "CALLS:Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift->Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter:39",
+        "properties": {
+          "lineno": 39
+        },
+        "provenance": {
+          "confidence": 0.9,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "39-39",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794259+00:00",
+          "trace_id": null
+        },
+        "src": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift",
+        "type": "CALLS"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter",
+        "id": "CALLS:Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get->Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter:84",
+        "properties": {
+          "lineno": 84
+        },
+        "provenance": {
+          "confidence": 0.9,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "84-84",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794347+00:00",
+          "trace_id": null
+        },
+        "src": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "type": "CALLS"
+      },
+      {
+        "dst": "Function:src/internal/async_queue.ts:src.internal.async_queue.abortError",
+        "id": "CALLS:Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get->Function:src/internal/async_queue.ts:src.internal.async_queue.abortError:89",
+        "properties": {
+          "lineno": 89
+        },
+        "provenance": {
+          "confidence": 0.9,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "89-89",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794355+00:00",
+          "trace_id": null
+        },
+        "src": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "type": "CALLS"
+      },
+      {
+        "dst": "Function:src/internal/async_queue.ts:src.internal.async_queue.abortError",
+        "id": "CALLS:Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get->Function:src/internal/async_queue.ts:src.internal.async_queue.abortError:102",
+        "properties": {
+          "lineno": 102
+        },
+        "provenance": {
+          "confidence": 0.9,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "102-102",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794378+00:00",
+          "trace_id": null
+        },
+        "src": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "type": "CALLS"
+      },
+      {
+        "dst": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter",
+        "id": "CALLS:Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get->Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter:101",
+        "properties": {
+          "lineno": 101
+        },
+        "provenance": {
+          "confidence": 0.9,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "101-101",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794370+00:00",
+          "trace_id": null
+        },
+        "src": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "type": "CALLS"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue",
+        "properties": {
+          "col": 7,
+          "end_col": 1,
+          "end_lineno": 134,
+          "language": "typescript",
+          "lineno": 14,
+          "name": "AsyncQueue",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "14-134:7-1",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793990+00:00",
+          "trace_id": null
+        },
+        "type": "Class"
+      },
+      {
+        "id": "Function:src/internal/async_queue.ts:src.internal.async_queue.abortError",
+        "properties": {
+          "col": 0,
+          "end_col": 1,
+          "end_lineno": 140,
+          "language": "typescript",
+          "lineno": 136,
+          "name": "abortError",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.abortError",
+          "signature": "function abortError(): Error"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "136-140:0-1",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794036+00:00",
+          "trace_id": null
+        },
+        "type": "Function"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.constructor",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 28,
+          "language": "typescript",
+          "lineno": 20,
+          "name": "constructor",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.constructor",
+          "signature": "constructor(capacity: number = Infinity)"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "20-28:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793993+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 133,
+          "language": "typescript",
+          "lineno": 122,
+          "name": "drainPutWaiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.drainPutWaiter",
+          "signature": "private drainPutWaiter(): void"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "122-133:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794031+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 110,
+          "language": "typescript",
+          "lineno": 81,
+          "name": "get",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.get",
+          "signature": "async get(signal?: AbortSignal): Promise<T>"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "81-110:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794015+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.onAbort",
+        "properties": {
+          "col": 24,
+          "end_col": 9,
+          "end_lineno": 103,
+          "language": "typescript",
+          "lineno": 100,
+          "name": "onAbort",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.get.onAbort",
+          "signature": "() =>"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "100-103:24-9",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794023+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.put",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 61,
+          "language": "typescript",
+          "lineno": 43,
+          "name": "put",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.put",
+          "signature": "async put(item: T): Promise<void>"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "43-61:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794004+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 120,
+          "language": "typescript",
+          "lineno": 112,
+          "name": "removeGetWaiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.removeGetWaiter",
+          "signature": "private removeGetWaiter(waiter: GetWaiter<T>): void"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "112-120:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794026+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 41,
+          "language": "typescript",
+          "lineno": 34,
+          "name": "shift",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.shift",
+          "signature": "shift(): T | undefined"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "34-41:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793999+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.size",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 32,
+          "language": "typescript",
+          "lineno": 30,
+          "name": "size",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.size",
+          "signature": "get size(): number"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "30-32:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793996+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Method:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.tryPut",
+        "properties": {
+          "col": 2,
+          "end_col": 3,
+          "end_lineno": 79,
+          "language": "typescript",
+          "lineno": 63,
+          "name": "tryPut",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.tryPut",
+          "signature": "tryPut(item: T): boolean"
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "63-79:2-3",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794010+00:00",
+          "trace_id": null
+        },
+        "type": "Method"
+      },
+      {
+        "id": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+        "properties": {
+          "col": 0,
+          "end_col": 0,
+          "end_lineno": 141,
+          "language": "typescript",
+          "lineno": 1,
+          "name": "src.internal.async_queue",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "1-141:0-0",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793976+00:00",
+          "trace_id": null
+        },
+        "type": "Module"
+      },
+      {
+        "id": "TypeAlias:src/internal/async_queue.ts:src.internal.async_queue.GetWaiter",
+        "properties": {
+          "col": 0,
+          "end_col": 2,
+          "end_lineno": 6,
+          "language": "typescript",
+          "lineno": 1,
+          "name": "GetWaiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.GetWaiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "1-6:0-2",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793983+00:00",
+          "trace_id": null
+        },
+        "type": "TypeAlias"
+      },
+      {
+        "id": "TypeAlias:src/internal/async_queue.ts:src.internal.async_queue.PutWaiter",
+        "properties": {
+          "col": 0,
+          "end_col": 2,
+          "end_lineno": 12,
+          "language": "typescript",
+          "lineno": 8,
+          "name": "PutWaiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.PutWaiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "8-12:0-2",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.793987+00:00",
+          "trace_id": null
+        },
+        "type": "TypeAlias"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.drainPutWaiter.waiter",
+        "properties": {
+          "col": 10,
+          "end_col": 43,
+          "end_lineno": 130,
+          "language": "typescript",
+          "lineno": 130,
+          "name": "waiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.drainPutWaiter.waiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "130-130:10-43",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794034+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.item",
+        "properties": {
+          "col": 12,
+          "end_col": 38,
+          "end_lineno": 83,
+          "language": "typescript",
+          "lineno": 83,
+          "name": "item",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.get.item",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "83-83:12-38",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794018+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.get.waiter",
+        "properties": {
+          "col": 12,
+          "end_col": 7,
+          "end_lineno": 97,
+          "language": "typescript",
+          "lineno": 93,
+          "name": "waiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.get.waiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "93-97:12-7",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794021+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.put.waiter",
+        "properties": {
+          "col": 12,
+          "end_col": 45,
+          "end_lineno": 45,
+          "language": "typescript",
+          "lineno": 45,
+          "name": "waiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.put.waiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "45-45:12-45",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794007+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.removeGetWaiter.idx",
+        "properties": {
+          "col": 10,
+          "end_col": 47,
+          "end_lineno": 113,
+          "language": "typescript",
+          "lineno": 113,
+          "name": "idx",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.removeGetWaiter.idx",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "113-113:10-47",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794029+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.shift.item",
+        "properties": {
+          "col": 10,
+          "end_col": 35,
+          "end_lineno": 38,
+          "language": "typescript",
+          "lineno": 38,
+          "name": "item",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.shift.item",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "38-38:10-35",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794002+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue.tryPut.waiter",
+        "properties": {
+          "col": 12,
+          "end_col": 45,
+          "end_lineno": 65,
+          "language": "typescript",
+          "lineno": 65,
+          "name": "waiter",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.AsyncQueue.tryPut.waiter",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "65-65:12-45",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794012+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      },
+      {
+        "id": "Variable:src/internal/async_queue.ts:src.internal.async_queue.abortError.error",
+        "properties": {
+          "col": 8,
+          "end_col": 36,
+          "end_lineno": 137,
+          "language": "typescript",
+          "lineno": 137,
+          "name": "error",
+          "path": "src/internal/async_queue.ts",
+          "qualname": "src.internal.async_queue.abortError.error",
+          "signature": ""
+        },
+        "provenance": {
+          "confidence": 1.0,
+          "extractor": "TypeScriptSymbolExtractor",
+          "metadata": {},
+          "source_chunk": "137-137:8-36",
+          "source_id": "src/internal/async_queue.ts",
+          "timestamp": "2026-02-01T21:33:08.794039+00:00",
+          "trace_id": null
+        },
+        "type": "Variable"
+      }
+    ]
+  },
+  "notes": {
+    "imports_resolution": "IMPORTS edges store dst as a string (module/symbol). Resolution is best-effort: exact qualname match, `src.` prefix stripping, then longest-prefix fallback."
+  },
+  "partitioning": {
+    "assignment": "deepest_scope_wins",
+    "edge_scope": "by src node scope",
+    "node_scope": "by provenance.source_id/path prefix match",
+    "scopes_count": 2
+  },
+  "repo_sha": "756f4b942bc82351feda6bb54fecdc9b8d7708b2",
+  "reverse_deps": {
+    "calls": {
+      "by_file": [
+        {
+          "count": 1,
+          "items": [
+            {
+              "callee": {
+                "id": "Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue",
+                "path": "src/internal/async_queue.ts",
+                "qualname": "src.internal.async_queue.AsyncQueue"
+              },
+              "caller": {
+                "id": "Method:src/executor.ts:src.executor.DagExecutor.streamExecute",
+                "path": "src/executor.ts",
+                "qualname": "src.executor.DagExecutor.streamExecute"
+              },
+              "edge_id": "CALLS:Method:src/executor.ts:src.executor.DagExecutor.streamExecute->Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue:387"
+            }
+          ],
+          "path": "src/executor.ts"
+        },
+        {
+          "count": 1,
+          "items": [
+            {
+              "callee": {
+                "id": "Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue",
+                "path": "src/internal/async_queue.ts",
+                "qualname": "src.internal.async_queue.AsyncQueue"
+              },
+              "caller": {
+                "id": "Function:src/observers.ts:src.observers.constructor",
+                "path": "src/observers.ts",
+                "qualname": "src.observers.constructor"
+              },
+              "edge_id": "CALLS:Function:src/observers.ts:src.observers.constructor->Class:src/internal/async_queue.ts:src.internal.async_queue.AsyncQueue:125"
+            }
+          ],
+          "path": "src/observers.ts"
+        }
+      ],
+      "total": 2
+    },
+    "imports": {
+      "by_file": [
+        {
+          "count": 1,
+          "items": [
+            {
+              "edge_id": "IMPORTS:src.executor->src.internal.async_queue",
+              "importer": {
+                "id": "Module:src/executor.ts:src.executor",
+                "path": "src/executor.ts",
+                "qualname": "src.executor"
+              },
+              "target": {
+                "raw": "src.internal.async_queue",
+                "resolved_id": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+                "resolved_path": "src/internal/async_queue.ts",
+                "resolved_qualname": "src.internal.async_queue"
+              }
+            }
+          ],
+          "path": "src/executor.ts"
+        },
+        {
+          "count": 1,
+          "items": [
+            {
+              "edge_id": "IMPORTS:src.observers->src.internal.async_queue",
+              "importer": {
+                "id": "Module:src/observers.ts:src.observers",
+                "path": "src/observers.ts",
+                "qualname": "src.observers"
+              },
+              "target": {
+                "raw": "src.internal.async_queue",
+                "resolved_id": "Module:src/internal/async_queue.ts:src.internal.async_queue",
+                "resolved_path": "src/internal/async_queue.ts",
+                "resolved_qualname": "src.internal.async_queue"
+              }
+            }
+          ],
+          "path": "src/observers.ts"
+        }
+      ],
+      "total": 2
+    }
+  },
+  "scope_root": "src/internal",
+  "summary": {
+    "edge_types": {
+      "CALLS": 5,
+      "DEFINES": 21
+    },
+    "edges": 26,
+    "forward_deps": {
+      "calls": 0,
+      "imports": 0
+    },
+    "node_types": {
+      "Class": 1,
+      "Function": 1,
+      "Method": 9,
+      "Module": 1,
+      "TypeAlias": 2,
+      "Variable": 8
+    },
+    "nodes": 22,
+    "reverse_deps": {
+      "calls": 2,
+      "imports": 2
+    }
+  }
+}

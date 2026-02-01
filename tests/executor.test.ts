@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   DagExecutor,
   ExecutionStatus,
@@ -46,6 +46,72 @@ describe("DagExecutor", () => {
     const state = await executor.executeAsync(plan, handlers);
 
     expect(state.status).toBe(ExecutionStatus.FAILED);
+    expect(state.steps.get("a")?.status).toBe(StepStatus.FAILED);
+    expect(state.steps.get("b")?.status).toBe(StepStatus.BLOCKED);
+  });
+
+  it("exposes dependency outputs safely", async () => {
+    const builder = new PlanBuilder();
+    builder.addStep({ id: "a", action: "produce" });
+    builder.addStep({ id: "b", action: "consume", deps: ["a"] });
+    const plan = builder.build();
+
+    let seenOutputs: Record<string, number> | undefined;
+
+    const handlers: Record<string, StepHandler> = {
+      produce: async (step) => ({
+        stepId: step.id,
+        status: StepStatus.COMPLETED,
+        output: 123
+      }),
+      consume: async (step, ctx) => {
+        const outputs = ctx.getDependencyOutputs<number>();
+        seenOutputs = outputs;
+        const depResults = ctx.getDependencyResults();
+        if (depResults.a) {
+          depResults.a.status = StepStatus.FAILED;
+        }
+        const dep = ctx.requireResult("a");
+        return {
+          stepId: step.id,
+          status: StepStatus.COMPLETED,
+          output: (dep.output as number) + 1
+        };
+      }
+    };
+
+    const executor = new DagExecutor({ maxParallelSteps: 1 });
+    const state = await executor.executeAsync(plan, handlers);
+
+    expect(seenOutputs).toEqual({ a: 123 });
+    expect(state.status).toBe(ExecutionStatus.COMPLETED);
+    expect(state.steps.get("a")?.status).toBe(StepStatus.COMPLETED);
+    expect(state.steps.get("b")?.output).toBe(124);
+  });
+
+  it("blocks dependents when a dependency fails", async () => {
+    const builder = new PlanBuilder();
+    builder.addStep({ id: "a", action: "fail" });
+    builder.addStep({ id: "b", action: "consume", deps: ["a"] });
+    const plan = builder.build();
+
+    const consume = vi.fn(async (step) => ({
+      stepId: step.id,
+      status: StepStatus.COMPLETED
+    }));
+
+    const handlers: Record<string, StepHandler> = {
+      fail: async (step) => ({
+        stepId: step.id,
+        status: StepStatus.FAILED
+      }),
+      consume
+    };
+
+    const executor = new DagExecutor({ maxParallelSteps: 1 });
+    const state = await executor.executeAsync(plan, handlers);
+
+    expect(consume).not.toHaveBeenCalled();
     expect(state.steps.get("a")?.status).toBe(StepStatus.FAILED);
     expect(state.steps.get("b")?.status).toBe(StepStatus.BLOCKED);
   });

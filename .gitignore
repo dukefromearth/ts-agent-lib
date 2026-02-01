@@ -5,6 +5,7 @@ coverage/
 *.log
 .env
 .env.*
+repo_graph.json
 
 # TypeScript build info
 *.tsbuildinfo

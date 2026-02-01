@@ -1,13 +1,17 @@
 {
   "name": "ts-agent-lib",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Minimal, decoupled DAG execution core for agent workflows.",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/dukefromearth/ts-agent-lib"
   },
+  "bugs": {
+    "url": "https://github.com/dukefromearth/ts-agent-lib/issues"
+  },
+  "homepage": "https://github.com/dukefromearth/ts-agent-lib#readme",
   "engines": {
     "node": ">=18.17"
   },
@@ -25,6 +29,13 @@
     }
   },
   "sideEffects": false,
+  "keywords": [
+    "dag",
+    "workflow",
+    "scheduler",
+    "executor",
+    "orchestration"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json --noEmit",
