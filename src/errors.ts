@@ -21,8 +21,12 @@ export class ExecutionError extends Error {
       if (result.error) {
         errors.push(result.error);
       } else if (result.status === StepStatus.BLOCKED || result.status === StepStatus.CANCELLED) {
+        const detail =
+          result.status === StepStatus.BLOCKED && result.blockedReason
+            ? ` (${result.blockedReason})`
+            : "";
         errors.push({
-          message: `step ${result.stepId} ended with status ${result.status}`,
+          message: `step ${result.stepId} ended with status ${result.status}${detail}`,
           type: "ExecutionStatus"
         });
       }

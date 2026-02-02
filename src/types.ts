@@ -9,6 +9,15 @@ const stepStatusValues = [
   "cancelled"
 ] as const;
 
+export const BlockedReason = {
+  DEPENDENCY_FAILED: "dependency_failed",
+  DEPENDENCY_CANCELLED: "dependency_cancelled",
+  DEPENDENCY_BLOCKED: "dependency_blocked",
+  FAIL_FAST: "fail_fast"
+} as const;
+
+export type BlockedReason = (typeof BlockedReason)[keyof typeof BlockedReason];
+
 export const StepStatus = {
   PENDING: "pending",
   RUNNING: "running",
@@ -70,6 +79,7 @@ export const StepResultSchema = z.object({
   status: StepStatusSchema.default(StepStatus.PENDING),
   output: z.unknown().optional(),
   error: ErrorInfoSchema.optional(),
+  blockedReason: z.string().optional(),
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional()
 });
@@ -160,7 +170,8 @@ export type StepFailed = z.infer<typeof StepFailedSchema>;
 
 export const StepBlockedSchema = ExecutionEventSchema.extend({
   type: z.literal("step_blocked"),
-  stepId: z.string()
+  stepId: z.string(),
+  blockedReason: z.string().optional()
 });
 
 export type StepBlocked = z.infer<typeof StepBlockedSchema>;

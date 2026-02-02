@@ -73,7 +73,7 @@ Behavior:
 
 Use `AbortController` to cancel an execution. Pending steps become `cancelled`. Handlers should check `ctx.isCancelled()` or `ctx.signal?.aborted` and return promptly.
 
-`failFast: true` stops scheduling new steps after the first failure. (Running steps are not cancelled today; see roadmap.)
+`failFast: true` stops scheduling new steps after the first failure. Set `cancelRunningOnFailFast: true` to also abort running handlers via a shared signal (cooperative cancellation).
 
 ```ts
 const controller = new AbortController();
@@ -82,6 +82,64 @@ setTimeout(() => controller.abort(), 5_000);
 const state = await new DagExecutor().executeAsync(plan, handlers, {
   cancelSignal: controller.signal
 });
+```
+
+## Execution snapshots + resume
+
+You can snapshot execution state for storage/transport and resume later without re-running completed steps:
+
+```ts
+import {
+  DagExecutor,
+  serializeExecutionState,
+  deserializeExecutionState
+} from "ts-agent-lib";
+
+const state = await new DagExecutor().executeAsync(plan, handlers);
+const snapshot = serializeExecutionState(state);
+
+// Persist snapshot as JSON...
+const restored = deserializeExecutionState(snapshot);
+
+const resumed = await new DagExecutor().executeAsync(plan, handlers, {
+  resumeFrom: restored
+});
+```
+
+Resume behavior:
+- Steps marked `completed` remain completed.
+- All other steps resume as `pending` (including `running`).
+- Snapshots referencing unknown step IDs throw an error.
+
+## Per-action concurrency lanes
+
+In addition to `maxParallelSteps`, you can cap concurrency per action:
+
+```ts
+const executor = new DagExecutor({
+  maxParallelSteps: 8,
+  actionConcurrency: {
+    llm: 2,
+    io: 4
+  }
+});
+```
+
+## Retry and timeout helpers
+
+Wrap handlers with `withRetry` and/or `withTimeout` to add simple policies:
+
+```ts
+import { withRetry, withTimeout, StepStatus } from "ts-agent-lib";
+
+const handlers = {
+  work: withRetry(
+    withTimeout(async (step) => {
+      return { stepId: step.id, status: StepStatus.COMPLETED };
+    }, 5_000),
+    { retries: 2, delayMs: 250 }
+  )
+};
 ```
 
 ## Events and observers
@@ -95,6 +153,8 @@ for await (const event of executor.streamExecute(plan, handlers)) {
 ```
 
 Events include: `execution_started`, `step_scheduled`, `step_started`, `step_completed`, `step_failed`, `step_blocked`, `step_cancelled`, `execution_completed`, and `execution_cancelled`.
+
+Blocked steps include a `blockedReason` on results and on `step_blocked` events.
 
 ## Validation
 
@@ -111,10 +171,6 @@ const state = ExecutionStateSchema.parse({
 });
 ```
 
-## Roadmap (design stubs)
+## Roadmap
 
-- Execution snapshots: JSON-serializable snapshots with `serializeExecutionState` / `deserializeExecutionState`, plus resume support. Proposed semantics: steps marked `running` in a snapshot resume as `pending`, and snapshots referencing unknown step IDs raise an error.
-- Fail-fast cancellation: when `failFast` is enabled, abort a shared signal so running steps can exit early.
-- Explainable blocked steps: add a `blockedReason` on results or on `step_blocked` events.
-- Optional step policies: minimal retry/timeout helpers.
-- Optional concurrency lanes: per-action caps in addition to global `maxParallelSteps`.
+See the issue tracker for future ideas and extensions.

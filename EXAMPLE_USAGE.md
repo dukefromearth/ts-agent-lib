@@ -3,10 +3,12 @@
 This document captures a real-world pattern one team used with `ts-agent-lib`:
 
 - represent an async workflow as a DAG (steps + dependencies)
-- execute it with explicit semantics (fail-fast, cancellation, max-parallelism)
+- execute it with explicit semantics (fail-fast, cancellation, max-parallelism, per-action caps)
 - stream or observe execution events
 - validate inputs/outputs at runtime (zod, like pydantic in the Python version)
 - optionally aggregate `Usage` and estimate cost via pricing rules
+- optionally snapshot and resume execution state
+- optionally apply retry/timeout policies per action
 
 The example intentionally avoids any domain- or application-specific logic. Replace the placeholder work in handlers with your own calls.
 
@@ -198,6 +200,50 @@ const state = await new DagExecutor().executeAsync(plan, handlers, {
 });
 ```
 
+## Execution snapshots + resume
+
+Persist execution state and resume later without re-running completed steps:
+
+```ts
+import {
+  DagExecutor,
+  serializeExecutionState,
+  deserializeExecutionState
+} from "ts-agent-lib";
+
+const state = await new DagExecutor().executeAsync(plan, handlers);
+const snapshot = serializeExecutionState(state);
+
+// Persist snapshot as JSON...
+const restored = deserializeExecutionState(snapshot);
+
+const resumed = await new DagExecutor().executeAsync(plan, handlers, {
+  resumeFrom: restored
+});
+```
+
+## Per-action concurrency + retry/timeout policies
+
+```ts
+import { DagExecutor, withRetry, withTimeout, StepStatus } from "ts-agent-lib";
+
+const executor = new DagExecutor({
+  maxParallelSteps: 8,
+  actionConcurrency: { llm: 2 }
+});
+
+const handlers = {
+  llm: withRetry(
+    withTimeout(async (step) => {
+      return { stepId: step.id, status: StepStatus.COMPLETED };
+    }, 5_000),
+    { retries: 2, delayMs: 250 }
+  )
+};
+
+await executor.executeAsync(plan, handlers);
+```
+
 ## Runtime Validation (zod)
 
 `ts-agent-lib` exposes zod schemas for the core models so you can validate inputs at boundaries (config files, network payloads, persisted state, etc.).
@@ -232,4 +278,3 @@ ExecutionEventTypeSchema.parse({
   stepId: "x"
 });
 ```
-

@@ -1,7 +1,9 @@
 import { randomUUID } from "crypto";
 import { AsyncQueue } from "./internal/async_queue";
 import {
+  BlockedReason,
   ExecutionStatus,
+  ExecutionStateSchema,
   StepResultSchema,
   StepStatus,
   utcNow
@@ -31,6 +33,7 @@ export interface ExecuteOptions {
   onEvent?: EventHandler;
   cancelSignal?: AbortSignal;
   executionId?: string;
+  resumeFrom?: ExecutionState;
 }
 
 export class StepContext {
@@ -107,25 +110,56 @@ export class StepContext {
     }
     return outputs;
   }
+
+  withSignal(signal?: AbortSignal): StepContext {
+    return new StepContext({
+      executionId: this._executionId,
+      stepId: this._stepId,
+      signal,
+      plan: this._plan,
+      getResult: this._getResult
+    });
+  }
+
+  withMergedSignal(signal?: AbortSignal): StepContext {
+    return this.withSignal(mergeAbortSignals(this._signal, signal));
+  }
 }
 
 type SchedulerState = {
-  running: Map<Promise<void>, string>;
+  running: Map<Promise<void>, { stepId: string; action: string }>;
   failFast: boolean;
   stopScheduling: boolean;
+  failFastTriggered: boolean;
 };
 
 export class DagExecutor {
   private readonly maxParallelSteps: number;
   private readonly failFast: boolean;
+  private readonly cancelRunningOnFailFast: boolean;
+  private readonly actionConcurrency: Map<string, number>;
 
-  constructor(params: { maxParallelSteps?: number; failFast?: boolean } = {}) {
-    const { maxParallelSteps = 8, failFast = false } = params;
+  constructor(
+    params: {
+      maxParallelSteps?: number;
+      failFast?: boolean;
+      cancelRunningOnFailFast?: boolean;
+      actionConcurrency?: Record<string, number> | Map<string, number>;
+    } = {}
+  ) {
+    const {
+      maxParallelSteps = 8,
+      failFast = false,
+      cancelRunningOnFailFast = false,
+      actionConcurrency
+    } = params;
     if (maxParallelSteps <= 0) {
       throw new Error("maxParallelSteps must be > 0");
     }
     this.maxParallelSteps = maxParallelSteps;
     this.failFast = failFast;
+    this.cancelRunningOnFailFast = cancelRunningOnFailFast;
+    this.actionConcurrency = normalizeActionConcurrency(actionConcurrency);
   }
 
   async executeAsync(
@@ -133,7 +167,10 @@ export class DagExecutor {
     handlers: Record<string, StepHandler>,
     options: ExecuteOptions = {}
   ): Promise<ExecutionState> {
-    const execId = options.executionId ?? randomUUID();
+    const resumeState = options.resumeFrom
+      ? ExecutionStateSchema.parse(options.resumeFrom)
+      : undefined;
+    const execId = options.executionId ?? resumeState?.executionId ?? randomUUID();
     const state: ExecutionState = {
       executionId: execId,
       status: ExecutionStatus.RUNNING,
@@ -144,10 +181,31 @@ export class DagExecutor {
     const allSteps = new Map<string, Step>();
     for (const step of plan) {
       allSteps.set(step.id, step);
-      state.steps.set(step.id, {
-        stepId: step.id,
-        status: StepStatus.PENDING
-      });
+    }
+
+    if (resumeState) {
+      for (const stepId of resumeState.steps.keys()) {
+        if (!allSteps.has(stepId)) {
+          throw new Error(`snapshot includes unknown step '${stepId}'`);
+        }
+      }
+    }
+
+    for (const step of plan) {
+      const resumed = resumeState?.steps.get(step.id);
+      if (resumed && resumed.stepId !== step.id) {
+        throw new Error(
+          `snapshot stepId '${resumed.stepId}' does not match plan step '${step.id}'`
+        );
+      }
+      if (resumed && resumed.status === StepStatus.COMPLETED) {
+        state.steps.set(step.id, cloneStepResult(resumed));
+      } else {
+        state.steps.set(step.id, {
+          stepId: step.id,
+          status: StepStatus.PENDING
+        });
+      }
     }
 
     const emit = async (event: ExecutionEventType): Promise<void> => {
@@ -168,10 +226,39 @@ export class DagExecutor {
     const schedState: SchedulerState = {
       running: new Map(),
       failFast: this.failFast,
-      stopScheduling: false
+      stopScheduling: false,
+      failFastTriggered: false
     };
 
+    const failFastController =
+      this.failFast && this.cancelRunningOnFailFast ? new AbortController() : undefined;
+    const handlerSignal = mergeAbortSignals(options.cancelSignal, failFastController?.signal);
+
     const isCancelled = (): boolean => options.cancelSignal?.aborted ?? false;
+
+    const runningByAction = new Map<string, number>();
+
+    const hasActionCapacity = (action: string): boolean => {
+      const limit = this.actionConcurrency.get(action);
+      if (!limit || !Number.isFinite(limit)) {
+        return true;
+      }
+      const runningCount = runningByAction.get(action) ?? 0;
+      return runningCount < limit;
+    };
+
+    const incrementAction = (action: string): void => {
+      runningByAction.set(action, (runningByAction.get(action) ?? 0) + 1);
+    };
+
+    const decrementAction = (action: string): void => {
+      const next = (runningByAction.get(action) ?? 0) - 1;
+      if (next <= 0) {
+        runningByAction.delete(action);
+      } else {
+        runningByAction.set(action, next);
+      }
+    };
 
     const canRun = (step: Step): boolean => {
       const res = state.steps.get(step.id);
@@ -202,6 +289,23 @@ export class DagExecutor {
       }
     };
 
+    const pickNextReady = (): string | undefined => {
+      for (let i = 0; i < ready.length; i++) {
+        const stepId = ready[i]!;
+        const step = allSteps.get(stepId);
+        if (!step) {
+          continue;
+        }
+        if (!hasActionCapacity(step.action)) {
+          continue;
+        }
+        ready.splice(i, 1);
+        readySet.delete(stepId);
+        return stepId;
+      }
+      return undefined;
+    };
+
     const cancelStep = async (stepId: string, res: StepResult): Promise<void> => {
       res.status = StepStatus.CANCELLED;
       if (!res.finishedAt) {
@@ -230,11 +334,24 @@ export class DagExecutor {
       } satisfies StepFailed);
       if (schedState.failFast) {
         schedState.stopScheduling = true;
+        if (!schedState.failFastTriggered) {
+          schedState.failFastTriggered = true;
+          if (failFastController) {
+            failFastController.abort();
+          }
+        }
       }
     };
 
-    const blockStep = async (stepId: string, res: StepResult): Promise<void> => {
+    const blockStep = async (
+      stepId: string,
+      res: StepResult,
+      reason?: string
+    ): Promise<void> => {
       res.status = StepStatus.BLOCKED;
+      if (reason && !res.blockedReason) {
+        res.blockedReason = reason;
+      }
       if (!res.finishedAt) {
         res.finishedAt = utcNow();
       }
@@ -242,8 +359,48 @@ export class DagExecutor {
         type: "step_blocked",
         executionId: execId,
         ts: utcNow(),
-        stepId
+        stepId,
+        blockedReason: res.blockedReason
       } satisfies StepBlocked);
+    };
+
+    const deriveBlockedReason = (stepId: string): string | undefined => {
+      const step = allSteps.get(stepId);
+      if (!step) {
+        return undefined;
+      }
+
+      let hasFailed = false;
+      let hasCancelled = false;
+      let hasBlocked = false;
+
+      for (const depId of step.deps) {
+        const depRes = state.steps.get(depId);
+        if (!depRes) {
+          throw new Error(`unknown dependency '${depId}' for step '${stepId}'`);
+        }
+        if (depRes.status === StepStatus.FAILED) {
+          hasFailed = true;
+        } else if (depRes.status === StepStatus.CANCELLED) {
+          hasCancelled = true;
+        } else if (depRes.status === StepStatus.BLOCKED) {
+          hasBlocked = true;
+        }
+      }
+
+      if (hasFailed) {
+        return BlockedReason.DEPENDENCY_FAILED;
+      }
+      if (hasCancelled) {
+        return BlockedReason.DEPENDENCY_CANCELLED;
+      }
+      if (hasBlocked) {
+        return BlockedReason.DEPENDENCY_BLOCKED;
+      }
+      if (schedState.failFastTriggered) {
+        return BlockedReason.FAIL_FAST;
+      }
+      return undefined;
     };
 
     const runStep = async (stepId: string): Promise<void> => {
@@ -276,7 +433,7 @@ export class DagExecutor {
       const ctx = new StepContext({
         executionId: execId,
         stepId,
-        signal: options.cancelSignal,
+        signal: handlerSignal,
         plan,
         getResult: (id) => state.steps.get(id)
       });
@@ -308,6 +465,7 @@ export class DagExecutor {
       res.status = status;
       res.output = result.output;
       res.error = result.error;
+      res.blockedReason = status === StepStatus.BLOCKED ? result.blockedReason : undefined;
       res.startedAt = res.startedAt ?? result.startedAt ?? utcNow();
       res.finishedAt = result.finishedAt ?? utcNow();
 
@@ -339,13 +497,16 @@ export class DagExecutor {
       }
 
       while (!schedState.stopScheduling && schedState.running.size < this.maxParallelSteps) {
-        if (ready.length === 0) {
+        const stepId = pickNextReady();
+        if (!stepId) {
           break;
         }
-        const stepId = ready.shift()!;
-        readySet.delete(stepId);
         const stepRes = state.steps.get(stepId);
         if (!stepRes || stepRes.status !== StepStatus.PENDING) {
+          continue;
+        }
+        const step = allSteps.get(stepId);
+        if (!step) {
           continue;
         }
         await emit({
@@ -356,7 +517,8 @@ export class DagExecutor {
         } satisfies StepScheduled);
 
         const task = runStep(stepId);
-        schedState.running.set(task, stepId);
+        schedState.running.set(task, { stepId, action: step.action });
+        incrementAction(step.action);
       }
 
       if (schedState.running.size === 0) {
@@ -368,9 +530,17 @@ export class DagExecutor {
       if (schedState.running.size > 0) {
         try {
           const { task: finished } = await waitForAny(schedState.running.keys());
+          const info = schedState.running.get(finished);
+          if (info) {
+            decrementAction(info.action);
+          }
           schedState.running.delete(finished);
         } catch (err) {
           if (isTaskError(err)) {
+            const info = schedState.running.get(err.task);
+            if (info) {
+              decrementAction(info.action);
+            }
             schedState.running.delete(err.task);
             throw err.error;
           }
@@ -398,10 +568,21 @@ export class DagExecutor {
       return state;
     }
 
+    const newlyBlocked: string[] = [];
     for (const [stepId, res] of state.steps.entries()) {
       if (res.status === StepStatus.PENDING) {
-        await blockStep(stepId, res);
+        res.status = StepStatus.BLOCKED;
+        newlyBlocked.push(stepId);
       }
+    }
+
+    for (const stepId of newlyBlocked) {
+      const res = state.steps.get(stepId);
+      if (!res) {
+        continue;
+      }
+      const reason = deriveBlockedReason(stepId);
+      await blockStep(stepId, res, reason);
     }
 
     const allCompleted = Array.from(state.steps.values()).every(
@@ -531,6 +712,31 @@ function mergeAbortSignals(...signals: Array<AbortSignal | undefined>): AbortSig
   }
 
   return controller.signal;
+}
+
+function normalizeActionConcurrency(
+  actionConcurrency?: Record<string, number> | Map<string, number>
+): Map<string, number> {
+  const normalized = new Map<string, number>();
+  if (!actionConcurrency) {
+    return normalized;
+  }
+
+  const entries =
+    actionConcurrency instanceof Map ? actionConcurrency.entries() : Object.entries(actionConcurrency);
+
+  for (const [action, rawLimit] of entries) {
+    const limit = Number(rawLimit);
+    if (!Number.isFinite(limit) && limit !== Infinity) {
+      throw new Error(`actionConcurrency limit for '${action}' must be a number`);
+    }
+    if (limit <= 0) {
+      throw new Error(`actionConcurrency limit for '${action}' must be > 0`);
+    }
+    normalized.set(action, limit);
+  }
+
+  return normalized;
 }
 
 function cloneStepResult(res: StepResult): StepResult {

@@ -5,6 +5,7 @@ export { PlanBuilder } from "./planning";
 export {
   ExecutionStatus,
   StepStatus,
+  BlockedReason,
   utcNow,
   Plan,
   StepSchema,
@@ -45,6 +46,8 @@ export type {
   StepsInput,
   PlanInput
 } from "./types";
+export { serializeExecutionState, deserializeExecutionState } from "./snapshots";
+export type { ExecutionStateSnapshot, StepResultSnapshot } from "./snapshots";
 export {
   composeObservers,
   composeObserversParallel,
@@ -56,3 +59,5 @@ export type { ExecutionObserver, ObserverErrorHandler } from "./observers";
 export { TaskOutput, runPlan, defaultUsageExtractor } from "./runner";
 export { Usage, aggregateUsage, estimateCost } from "./usage";
 export type { PricingRule, CostBreakdown } from "./usage";
+export { withRetry, withTimeout } from "./policies";
+export type { RetryOptions, TimeoutOptions } from "./policies";
