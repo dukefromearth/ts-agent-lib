@@ -171,6 +171,33 @@ const state = ExecutionStateSchema.parse({
 });
 ```
 
+## Architecture Maps (depcruise)
+
+Single entrypoint (stdout only, no file generation):
+
+```bash
+npm run arch:deps
+```
+
+Optional targeted outputs:
+
+```bash
+npm run arch:deps -- --view report
+npm run arch:deps -- --view json
+npm run arch:deps -- --view summary
+npm run arch:deps -- --view local
+npm run arch:deps -- --view api-paths
+npm run arch:deps -- --view test-paths
+```
+
+Useful filters:
+
+```bash
+npm run arch:deps -- --view full --focus '^src/index.ts$' --focus-depth 8
+npm run arch:deps -- --view full --reaches '^src/executor.ts$'
+npm run arch:deps -- --view src --include-only '^src/'
+```
+
 ## Roadmap
 
 See the issue tracker for future ideas and extensions.
