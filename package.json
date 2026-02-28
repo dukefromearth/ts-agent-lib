@@ -40,7 +40,7 @@
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "arch:deps": "node scripts/depcruise-arch.mjs"
+    "arch": "node scripts/depcruise-arch.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",

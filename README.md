@@ -176,26 +176,25 @@ const state = ExecutionStateSchema.parse({
 Single entrypoint (stdout only, no file generation):
 
 ```bash
-npm run arch:deps
+npm run arch
 ```
 
-Optional targeted outputs:
+By default it returns all Mermaid graphs (`deps`, `callgraph`, `types`).
+
+Return a single graph:
 
 ```bash
-npm run arch:deps -- --view report
-npm run arch:deps -- --view json
-npm run arch:deps -- --view summary
-npm run arch:deps -- --view local
-npm run arch:deps -- --view api-paths
-npm run arch:deps -- --view test-paths
+npm run arch -- --graph deps
+npm run arch -- --graph callgraph
+npm run arch -- --graph types
 ```
 
 Useful filters:
 
 ```bash
-npm run arch:deps -- --view full --focus '^src/index.ts$' --focus-depth 8
-npm run arch:deps -- --view full --reaches '^src/executor.ts$'
-npm run arch:deps -- --view src --include-only '^src/'
+npm run arch -- --graph deps --focus '^src/index.ts$' --focus-depth 8
+npm run arch -- --graph deps --reaches '^src/executor.ts$'
+npm run arch -- --graph deps --include-only '^src/'
 ```
 
 ## Roadmap

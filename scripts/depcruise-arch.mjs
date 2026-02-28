@@ -9,54 +9,28 @@ const CONFIG_FILE = ".dependency-cruiser.cjs";
 const TARGETS = ["src", "tests"];
 const MAX_PATH_DEPTH = 12;
 
-const NATIVE_VIEWS = {
-  full: { outputType: "mermaid", args: [] },
-  src: { outputType: "mermaid", args: ["-I", "^src/"] },
-  "public-api": {
-    outputType: "mermaid",
-    args: ["-F", "^src/index.ts$", "--focus-depth", "8", "-x", "^tests/"]
-  },
-  executor: { outputType: "mermaid", args: ["-R", "^src/executor.ts$"] },
-  types: { outputType: "mermaid", args: ["-R", "^src/types.ts$"] },
-  report: { outputType: "err-long", args: [] },
-  json: { outputType: "json", args: [] }
-};
-
-const CUSTOM_VIEWS = new Set(["local", "api-paths", "test-paths", "summary"]);
-
 function printHelp() {
   process.stdout.write(`Usage:
-  npm run arch:deps -- [options]
+  npm run arch -- [options]
 
 Defaults:
-  - Outputs Mermaid to stdout
-  - Equivalent to: npm run arch:deps -- --view full
+  - Outputs ALL Mermaid graphs to stdout
+  - Equivalent to: npm run arch -- --graph all
 
 Options:
-  --view <name>         View preset to output
+  --graph <name>        Graph to output (all | callgraph | deps | types)
   --focus <regex>       depcruise focus regex
   --focus-depth <n>     depcruise focus depth
   --reaches <regex>     depcruise reaches regex
   --include-only <re>   depcruise include-only regex
   --exclude <regex>     depcruise exclude regex
-  --output-type <type>  Override depcruise output type for native views
   --help                Show this help
-
-Views (native):
-  full | src | public-api | executor | types | report | json
-
-Views (custom, computed in-memory):
-  local      Mermaid graph of deduplicated local edges (src/tests only)
-  api-paths  Mermaid dependency paths from src/index.ts
-  test-paths Mermaid dependency paths from tests/*.test.ts
-  summary    Markdown architecture summary
 `);
 }
 
 function parseArgs(argv) {
   const parsed = {
-    view: "full",
-    outputType: undefined,
+    graph: "all",
     depcruiseArgs: []
   };
 
@@ -67,12 +41,8 @@ function parseArgs(argv) {
       parsed.help = true;
       continue;
     }
-    if (arg === "--view") {
-      parsed.view = argv[++i];
-      continue;
-    }
-    if (arg === "--output-type") {
-      parsed.outputType = argv[++i];
+    if (arg === "--graph") {
+      parsed.graph = argv[++i];
       continue;
     }
     if (arg === "--focus") {
@@ -174,14 +144,6 @@ function buildLocalGraph(cruiseJson) {
   };
 }
 
-function rootsOf(graph) {
-  return toSortedArray(graph.nodes).filter((node) => (graph.reverse.get(node)?.size ?? 0) === 0);
-}
-
-function leavesOf(graph) {
-  return toSortedArray(graph.nodes).filter((node) => (graph.adjacency.get(node)?.size ?? 0) === 0);
-}
-
 function enumeratePaths({ graph, starts, maxDepth = MAX_PATH_DEPTH, includeNode }) {
   const paths = [];
 
@@ -229,16 +191,6 @@ function enumeratePaths({ graph, starts, maxDepth = MAX_PATH_DEPTH, includeNode 
   return paths;
 }
 
-function toEdgePairsFromGraph(graph) {
-  const edges = [];
-  for (const from of toSortedArray(graph.nodes)) {
-    for (const to of toSortedArray(graph.adjacency.get(from) ?? [])) {
-      edges.push([from, to]);
-    }
-  }
-  return edges;
-}
-
 function toEdgePairsFromPaths(paths) {
   const edges = new Set();
   for (const pathNodes of paths) {
@@ -255,22 +207,6 @@ function escapeMermaidLabel(value) {
 
 function summarizePaths(paths) {
   return paths.map((pathNodes, index) => `${String(index + 1).padStart(2, "0")}. ${pathNodes.join(" -> ")}`);
-}
-
-function dedupePaths(paths, keyFn) {
-  const deduped = [];
-  const seen = new Set();
-
-  for (const pathNodes of paths) {
-    const key = keyFn(pathNodes);
-    if (seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    deduped.push(pathNodes);
-  }
-
-  return deduped;
 }
 
 function renderMermaid({ title, nodes, edges, entryNodes = [], pathComments = [] }) {
@@ -322,124 +258,35 @@ function renderMermaid({ title, nodes, edges, entryNodes = [], pathComments = []
   return lines.join("\n");
 }
 
-function renderSummary(graph, apiPaths, testPaths) {
-  const nodes = toSortedArray(graph.nodes);
-  const rows = nodes.map((modulePath) => ({
-    module: modulePath,
-    deps: toSortedArray(graph.adjacency.get(modulePath) ?? []),
-    dependents: toSortedArray(graph.reverse.get(modulePath) ?? []),
-    fanOut: graph.adjacency.get(modulePath)?.size ?? 0,
-    fanIn: graph.reverse.get(modulePath)?.size ?? 0
-  }));
-
-  const topHubs = [...rows].sort((a, b) => b.fanIn + b.fanOut - (a.fanIn + a.fanOut)).slice(0, 8);
-  const roots = rootsOf(graph);
-  const leaves = leavesOf(graph);
-
-  const lines = [];
-  lines.push("# Dependency Architecture Summary");
-  lines.push("");
-  lines.push(`- Modules: ${nodes.length}`);
-  lines.push(`- Roots: ${roots.length > 0 ? roots.join(", ") : "none"}`);
-  lines.push(`- Leaves: ${leaves.length > 0 ? leaves.join(", ") : "none"}`);
-  lines.push("");
-  lines.push("## Most Connected Modules");
-  lines.push("");
-  lines.push("| Module | Fan-in | Fan-out |");
-  lines.push("|---|---:|---:|");
-  for (const row of topHubs) {
-    lines.push(`| \`${row.module}\` | ${row.fanIn} | ${row.fanOut} |`);
-  }
-
-  lines.push("");
-  lines.push("## Module Reference");
-  lines.push("");
-  lines.push("| Module | Direct dependencies | Direct dependents |");
-  lines.push("|---|---|---|");
-  for (const row of rows) {
-    const deps = row.deps.length > 0 ? row.deps.map((d) => `\`${d}\``).join(", ") : "none";
-    const dependents = row.dependents.length > 0
-      ? row.dependents.map((d) => `\`${d}\``).join(", ")
-      : "none";
-    lines.push(`| \`${row.module}\` | ${deps} | ${dependents} |`);
-  }
-
-  lines.push("");
-  lines.push("## Public API Dependency Paths");
-  lines.push("");
-  for (const line of summarizePaths(apiPaths)) {
-    lines.push(`- ${line}`);
-  }
-
-  lines.push("");
-  lines.push("## Test Dependency Paths");
-  lines.push("");
-  for (const line of summarizePaths(testPaths)) {
-    lines.push(`- ${line}`);
-  }
-  lines.push("");
-
-  return lines.join("\n");
-}
-
-async function renderCustomView(view, depcruiseArgs) {
+async function renderCallgraph(depcruiseArgs) {
   const jsonOutput = await runDepcruise(depcruiseArgs, "json");
   const graph = buildLocalGraph(JSON.parse(jsonOutput));
+  const apiPaths = enumeratePaths({
+    graph,
+    starts: ["src/index.ts"],
+    includeNode: (node) => node.startsWith("src/")
+  });
 
-  if (view === "local") {
-    return renderMermaid({
-      title: "Local dependency graph (deduplicated)",
-      nodes: graph.nodes,
-      edges: toEdgePairsFromGraph(graph),
-      entryNodes: rootsOf(graph)
-    });
-  }
+  return renderMermaid({
+    title: "Callgraph-style dependency paths from public API",
+    nodes: new Set(apiPaths.flat()),
+    edges: toEdgePairsFromPaths(apiPaths),
+    entryNodes: ["src/index.ts"],
+    pathComments: summarizePaths(apiPaths)
+  });
+}
 
-  if (view === "api-paths") {
-    const apiPaths = enumeratePaths({
-      graph,
-      starts: ["src/index.ts"],
-      includeNode: (node) => node.startsWith("src/")
-    });
-    return renderMermaid({
-      title: "Dependency paths from public API",
-      nodes: new Set(apiPaths.flat()),
-      edges: toEdgePairsFromPaths(apiPaths),
-      entryNodes: ["src/index.ts"],
-      pathComments: summarizePaths(apiPaths)
-    });
-  }
+async function renderDeps(depcruiseArgs) {
+  return runDepcruise(depcruiseArgs, "mermaid");
+}
 
-  const testEntries = rootsOf(graph).filter((node) => node.startsWith("tests/"));
-  const rawTestPaths = enumeratePaths({ graph, starts: testEntries });
-  const testPaths = dedupePaths(
-    rawTestPaths.map((pathNodes) => [
-      pathNodes[0].replace(/^tests\/[^/]+[.]test[.]ts$/, "tests/*.test.ts"),
-      ...pathNodes.slice(1)
-    ]),
-    (pathNodes) => pathNodes.join("=>")
-  );
+async function renderTypes(depcruiseArgs) {
+  return runDepcruise(["-R", "^src/types.ts$", ...depcruiseArgs], "mermaid");
+}
 
-  if (view === "test-paths") {
-    return renderMermaid({
-      title: "Dependency paths from test entry points",
-      nodes: new Set(rawTestPaths.flat()),
-      edges: toEdgePairsFromPaths(rawTestPaths),
-      entryNodes: testEntries,
-      pathComments: summarizePaths(testPaths)
-    });
-  }
-
-  if (view === "summary") {
-    const apiPaths = enumeratePaths({
-      graph,
-      starts: ["src/index.ts"],
-      includeNode: (node) => node.startsWith("src/")
-    });
-    return renderSummary(graph, apiPaths, testPaths);
-  }
-
-  throw new Error(`Unknown custom view '${view}'`);
+function wrapMermaidSection(title, mermaidText) {
+  const trimmed = mermaidText.trim();
+  return `## ${title}\n\n\`\`\`mermaid\n${trimmed}\n\`\`\`\n`;
 }
 
 async function main() {
@@ -450,31 +297,46 @@ async function main() {
     return;
   }
 
-  if (!parsed.view) {
-    throw new Error("Missing value for --view");
+  if (!parsed.graph) {
+    throw new Error("Missing value for --graph");
   }
 
-  if (NATIVE_VIEWS[parsed.view]) {
-    const preset = NATIVE_VIEWS[parsed.view];
-    const outputType = parsed.outputType ?? preset.outputType;
-    const output = await runDepcruise([...preset.args, ...parsed.depcruiseArgs], outputType);
-    process.stdout.write(output);
+  const graphName = parsed.graph;
+  if (!["all", "callgraph", "deps", "types"].includes(graphName)) {
+    throw new Error("Unknown --graph value. Use one of: all, callgraph, deps, types.");
+  }
+
+  if (graphName === "callgraph") {
+    process.stdout.write(await renderCallgraph(parsed.depcruiseArgs));
+    return;
+  }
+  if (graphName === "deps") {
+    process.stdout.write(await renderDeps(parsed.depcruiseArgs));
+    return;
+  }
+  if (graphName === "types") {
+    process.stdout.write(await renderTypes(parsed.depcruiseArgs));
     return;
   }
 
-  if (CUSTOM_VIEWS.has(parsed.view)) {
-    const output = await renderCustomView(parsed.view, parsed.depcruiseArgs);
-    process.stdout.write(output);
-    return;
-  }
+  const [depsMermaid, callgraphMermaid, typesMermaid] = await Promise.all([
+    renderDeps(parsed.depcruiseArgs),
+    renderCallgraph(parsed.depcruiseArgs),
+    renderTypes(parsed.depcruiseArgs)
+  ]);
 
-  throw new Error(
-    `Unknown --view '${parsed.view}'. Use --help to list supported view names.`
-  );
+  const output = [
+    "# Architecture Graphs",
+    "",
+    wrapMermaidSection("Deps", depsMermaid),
+    wrapMermaidSection("Callgraph", callgraphMermaid),
+    wrapMermaidSection("Types", typesMermaid)
+  ].join("\n");
+  process.stdout.write(output);
 }
 
 main().catch((error) => {
   const message = error instanceof Error ? `${error.message}\n${error.stack ?? ""}` : String(error);
-  process.stderr.write(`arch:deps failed.\n${message}\n`);
+  process.stderr.write(`arch failed.\n${message}\n`);
   process.exitCode = 1;
 });
