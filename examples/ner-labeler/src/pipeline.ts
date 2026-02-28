@@ -100,9 +100,7 @@ function createHandlers(params: {
         stepId: step.id,
         status: StepStatus.COMPLETED,
         output: TrainingRecordSchema.parse({
-          inputId: params.input.inputId,
-          inputText: params.input.inputText,
-          contextTexts: params.input.contextTexts,
+          inputText: params.input,
           entities: LabelExtractionByLabelSchema.parse(entities)
         })
       };
@@ -115,7 +113,7 @@ function createHandlers(params: {
         await params.llm.inferStructured<LabelExtraction>({
           model: params.model,
           systemPrompt: labelStep.systemPrompt,
-          userPrompt: buildUserPrompt(params.input, labelStep.label),
+          userPrompt: params.input,
           schema: {
             name: `ner_label_extraction_${toSchemaToken(labelStep.label)}`,
             schema: buildLabelExtractionJsonSchema(labelStep.label)
@@ -141,20 +139,6 @@ function createHandlers(params: {
   return handlers;
 }
 
-function buildUserPrompt(input: InferenceInput, label: string): string {
-  const payload = {
-    label,
-    inputText: input.inputText,
-    contextTexts: input.contextTexts
-  };
-
-  return [
-    "Extract entities for exactly one label and return JSON only.",
-    "The JSON must match the response schema.",
-    JSON.stringify(payload, null, 2)
-  ].join("\n\n");
-}
-
 function readLabel(value: unknown, expectedLabel: string): LabelExtraction {
   const extraction = LabelExtractionSchema.parse(value);
   if (extraction.label !== expectedLabel) {
@@ -164,14 +148,12 @@ function readLabel(value: unknown, expectedLabel: string): LabelExtraction {
 }
 
 function assertMatchesAreExact(extraction: LabelExtraction, input: InferenceInput): void {
-  const corpus = [input.inputText, ...input.contextTexts].join("\n");
-
   for (const candidate of extraction.matches) {
     if (candidate.toLowerCase() === "none") {
       continue;
     }
-    if (!corpus.includes(candidate)) {
-      throw new Error(`extracted match '${candidate}' is not an exact substring of provided context`);
+    if (!input.includes(candidate)) {
+      throw new Error(`extracted match '${candidate}' is not an exact substring of the input text`);
     }
   }
 }

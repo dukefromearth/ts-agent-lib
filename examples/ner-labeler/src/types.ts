@@ -2,11 +2,7 @@ import { z } from "zod";
 
 export const LabelNameSchema = z.string().min(1);
 
-export const InferenceInputSchema = z.object({
-  inputId: z.string(),
-  inputText: z.string().min(1),
-  contextTexts: z.array(z.string())
-});
+export const InferenceInputSchema = z.string().min(1);
 
 export type InferenceInput = z.infer<typeof InferenceInputSchema>;
 
@@ -44,9 +40,7 @@ export const LabelExtractionByLabelSchema = z
 export type LabelExtractionByLabel = z.infer<typeof LabelExtractionByLabelSchema>;
 
 export const TrainingRecordSchema = z.object({
-  inputId: z.string(),
   inputText: z.string(),
-  contextTexts: z.array(z.string()),
   entities: LabelExtractionByLabelSchema
 });
 

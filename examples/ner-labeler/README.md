@@ -36,7 +36,7 @@ The pipeline automatically:
 - `prompts/prompt_handlers.ts`: zod-typed prompt handler list (`{ handler_name, system_prompt }[]`)
 - `OpenAiStructuredLlmClient` from `ts-agent-lib`: OpenAI structured-output adapter
 - `JsonlEventObserver` from `ts-agent-lib`: event telemetry adapter
-- `src/cli.ts`: input parsing and validation (`--text` required)
+- `src/cli.ts`: input parsing and validation (one required text argument)
 - `src/env.ts`: lightweight `.env` loader
 
 ## Run (no build step)
@@ -58,35 +58,24 @@ cp examples/ner-labeler/.env.example examples/ner-labeler/.env
 4. Run with required input text:
 
 ```bash
-npm run example:ner -- --text "Find entities in this text: Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."
-```
-
-Optional context:
-
-```bash
-npm run example:ner -- \
-  --text "Can we meet at City Library tomorrow at 4:30 PM?" \
-  --context "Last week we met at North Hall." \
-  --context "Email me at sam@example.org"
+npm run example:ner -- "Find entities in this text: Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."
 ```
 
 Or run directly from the workspace package:
 
 ```bash
-npm run --workspace @ts-agent-lib/example-ner-labeler dev -- --text "..."
+npm run --workspace @ts-agent-lib/example-ner-labeler dev -- "..."
 ```
 
 ## Required input contract
 
-- `--text` is required.
-- `--context` can be supplied 0..N times.
-- Optional: `--input-id`
+- Exactly one text argument is required.
 
 ## Output contract
 
 For each label, the model returns:
 
-- `matches`: exact substrings from input/context, or `["none"]`
+- `matches`: exact substrings from input text, or `["none"]`
 - `confidence`: `0.0` to `1.0`
 
 The final merged output is a typed `TrainingRecord` with `entities` keyed by label name.
