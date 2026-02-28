@@ -24,8 +24,33 @@ export const LabelExtractionSchema = z
 
 export type LabelExtraction = z.infer<typeof LabelExtractionSchema>;
 
-export const LabelExtractionByLabelSchema = z
-  .record(LabelNameSchema, LabelExtractionSchema)
+export const EntitySpanSchema = z
+  .object({
+    text: z.string().min(1),
+    start: z.number().int().min(0),
+    end: z.number().int().min(1)
+  })
+  .superRefine((span, ctx) => {
+    if (span.end <= span.start) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "end must be greater than start"
+      });
+    }
+  });
+
+export type EntitySpan = z.infer<typeof EntitySpanSchema>;
+
+export const TaggedLabelEntitySchema = z.object({
+  label: LabelNameSchema,
+  confidence: z.number().min(0).max(1),
+  spans: z.array(EntitySpanSchema)
+});
+
+export type TaggedLabelEntity = z.infer<typeof TaggedLabelEntitySchema>;
+
+export const TaggedEntityByLabelSchema = z
+  .record(LabelNameSchema, TaggedLabelEntitySchema)
   .superRefine((entities, ctx) => {
     for (const [label, extraction] of Object.entries(entities)) {
       if (extraction.label !== label) {
@@ -37,11 +62,11 @@ export const LabelExtractionByLabelSchema = z
     }
   });
 
-export type LabelExtractionByLabel = z.infer<typeof LabelExtractionByLabelSchema>;
+export type TaggedEntityByLabel = z.infer<typeof TaggedEntityByLabelSchema>;
 
 export const TrainingRecordSchema = z.object({
   inputText: z.string(),
-  entities: LabelExtractionByLabelSchema
+  entities: TaggedEntityByLabelSchema
 });
 
 export type TrainingRecord = z.infer<typeof TrainingRecordSchema>;

@@ -33,6 +33,7 @@ The pipeline automatically:
 ## Why this structure
 
 - `src/pipeline.ts`: one `runNerLabeling(...)` function with clear plan-building + lambda handlers
+- `src/render.ts`: deterministic terminal color rendering for text spans and legend output
 - `prompts/prompt_handlers.ts`: zod-typed prompt handler list (`{ handler_name, system_prompt }[]`)
 - `OpenAiStructuredLlmClient` from `ts-agent-lib`: OpenAI structured-output adapter
 - `JsonlEventObserver` from `ts-agent-lib`: event telemetry adapter
@@ -73,12 +74,22 @@ npm run --workspace @ts-agent-lib/example-ner-labeler dev -- "..."
 
 ## Output contract
 
-For each label, the model returns:
+For each label step, the model returns:
 
 - `matches`: exact substrings from input text, or `["none"]`
 - `confidence`: `0.0` to `1.0`
 
-The final merged output is a typed `TrainingRecord` with `entities` keyed by label name.
+`merge_entity_labels` then converts matches into regex-based NER spans over the input text.
+The final merged `TrainingRecord` is keyed by label name and each label contains:
+
+- `label`
+- `confidence`
+- `spans`: `[{ text, start, end }]` where `start` and `end` are character indexes in `inputText`
+
+CLI output then renders:
+
+- `Colored input text`: original input text highlighted with a stable color per label
+- `Key`: swatches + label names (and an overlap swatch for regions with 2+ labels)
 
 ## Output files
 

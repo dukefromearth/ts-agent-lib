@@ -5,6 +5,7 @@ import { JsonlEventObserver, OpenAiStructuredLlmClient } from "ts-agent-lib";
 import { UsageError, parseInputArgs, usageText } from "./cli.js";
 import { loadEnvFile } from "./env.js";
 import { runNerLabeling } from "./pipeline.js";
+import { renderNerOutput } from "./render.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,9 +45,14 @@ async function main(): Promise<void> {
       }
     });
 
-    console.log("Model:", model);
-    console.log(JSON.stringify(record, null, 2));
+    const rendered = renderNerOutput(record);
     console.log(`Execution events written to: ${eventsPath}`);
+    console.log("Model:", model);
+    console.log("\nKey:");
+    console.log(rendered.key);
+    console.log("\n");
+    console.log(rendered.coloredInputText);
+
   } finally {
     await observer.stop();
   }

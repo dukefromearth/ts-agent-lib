@@ -27,11 +27,12 @@ export interface OpenAiStructuredLlmClientOptions {
 
 export class OpenAiStructuredLlmClient implements StructuredLlmClient {
   private readonly client: OpenAI;
-  private readonly temperature: number;
+  private readonly temperature?: number;
 
   constructor(options: OpenAiStructuredLlmClientOptions = {}) {
-    this.temperature = options.temperature ?? 0;
-
+    if (options.temperature != null) {
+      this.temperature = options.temperature;
+    }
     if (options.client) {
       this.client = options.client;
       return;

@@ -30,7 +30,6 @@ describe("OpenAiStructuredLlmClient", () => {
 
     const adapter = new OpenAiStructuredLlmClient({
       client: fakeClient as unknown as any,
-      temperature: 0
     });
 
     const output = await adapter.inferStructured({
