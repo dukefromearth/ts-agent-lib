@@ -56,6 +56,11 @@ export {
   OverflowPolicy
 } from "./observers";
 export type { ExecutionObserver, ObserverErrorHandler } from "./observers";
+export { JsonlEventObserver } from "./adapters/observers/jsonl_observer";
+export type { JsonlObserverOptions } from "./adapters/observers/jsonl_observer";
+export { OpenAiStructuredLlmClient } from "./adapters/llm/openai_structured";
+export type { OpenAiStructuredLlmClientOptions } from "./adapters/llm/openai_structured";
+export type { JsonSchemaSpec, StructuredLlmRequest, StructuredLlmClient } from "./adapters/llm/types";
 export { TaskOutput, runPlan, defaultUsageExtractor } from "./runner";
 export { Usage, aggregateUsage, estimateCost } from "./usage";
 export type { PricingRule, CostBreakdown } from "./usage";

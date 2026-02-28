@@ -625,6 +625,9 @@ export class DagExecutor {
       cancelSignal: signal,
       onEvent: async (event) => {
         await queue.put(event);
+        if (options.onEvent) {
+          await options.onEvent(event);
+        }
       }
     })
       .catch((err) => {

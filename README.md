@@ -156,6 +156,17 @@ Events include: `execution_started`, `step_scheduled`, `step_started`, `step_com
 
 Blocked steps include a `blockedReason` on results and on `step_blocked` events.
 
+For a ready-to-use NDJSON adapter, use `JsonlEventObserver`:
+
+```ts
+import { JsonlEventObserver } from "ts-agent-lib";
+
+const observer = new JsonlEventObserver("./events.ndjson");
+await new DagExecutor().executeAsync(plan, handlers, {
+  onEvent: (event) => observer.onEvent(event)
+});
+```
+
 ## Validation
 
 The library exposes zod schemas for validation at boundaries:
@@ -200,3 +211,11 @@ npm run arch -- --graph deps --include-only '^src/'
 ## Roadmap
 
 See the issue tracker for future ideas and extensions.
+
+## Real Example Scaffold
+
+For a production-style, adapter-based NER labeling workflow (OpenAI structured output, Jinja-style system prompts, and observer-driven telemetry), see:
+
+- `examples/ner-labeler/README.md`
+- run with: `npm run example:ner -- --text "<your input text>"`
+- package smoke check: `npm run pack:smoke`

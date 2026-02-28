@@ -12,6 +12,9 @@
     "url": "https://github.com/dukefromearth/ts-agent-lib/issues"
   },
   "homepage": "https://github.com/dukefromearth/ts-agent-lib#readme",
+  "workspaces": [
+    "examples/*"
+  ],
   "engines": {
     "node": ">=18.17"
   },
@@ -24,6 +27,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
@@ -40,16 +44,21 @@
     "build": "tsup",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "arch": "node scripts/depcruise-arch.mjs"
+    "arch": "node scripts/depcruise-arch.mjs",
+    "example:ner": "npm run --workspace @ts-agent-lib/example-ner-labeler dev --",
+    "example:ner:typecheck": "npm run --workspace @ts-agent-lib/example-ner-labeler typecheck",
+    "pack:smoke": "node scripts/pack-smoke-example.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
     "dependency-cruiser": "^17.3.8",
     "tsup": "^8.3.5",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "openai": "^6.25.0",
     "zod": "^4.3.6"
   }
 }

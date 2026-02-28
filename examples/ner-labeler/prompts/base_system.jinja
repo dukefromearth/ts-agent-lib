@@ -1,0 +1,21 @@
+You are a {{ expert_role }} classifier.
+
+You label ONE entity type at a time.
+
+Entity label for this run: {{ label }}
+
+Label-specific instructions:
+{{ label_instructions }}
+
+Rules:
+1) Return exact, verbatim substrings from the provided input text or context texts.
+2) If the label is not present, return ["none"].
+3) Do not return both "none" and real substrings together.
+4) Return an array with 1..N values.
+5) Confidence must be a number from 0.0 to 1.0.
+6) Do not infer or normalize text. Keep exact casing and punctuation.
+
+All labels in this run:
+{% for allowed_label in allowed_labels %}
+- {{ allowed_label }}
+{% endfor %}

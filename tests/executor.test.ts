@@ -162,6 +162,31 @@ describe("DagExecutor", () => {
     expect(events).toContain("step_completed");
   });
 
+  it("calls user onEvent during stream execution", async () => {
+    const builder = new PlanBuilder();
+    builder.addStep({ id: "a", action: "one" });
+    const plan = builder.build();
+
+    const handlers: Record<string, StepHandler> = {
+      one: async (step) => ({ stepId: step.id, status: StepStatus.COMPLETED })
+    };
+
+    const executor = new DagExecutor();
+    const callbackEvents: string[] = [];
+    const streamEvents: string[] = [];
+
+    for await (const event of executor.streamExecute(plan, handlers, {
+      onEvent: (event) => {
+        callbackEvents.push(event.type);
+      }
+    })) {
+      streamEvents.push(event.type);
+    }
+
+    expect(callbackEvents.length).toBeGreaterThan(0);
+    expect(callbackEvents).toEqual(streamEvents);
+  });
+
   it("exposes blocked reasons for dependency failures", async () => {
     const builder = new PlanBuilder();
     builder.addStep({ id: "a", action: "fail" });

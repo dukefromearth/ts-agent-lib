@@ -1,0 +1,18 @@
+{
+  "name": "@ts-agent-lib/example-ner-labeler",
+  "private": true,
+  "type": "module",
+  "description": "NER labeling example for ts-agent-lib",
+  "scripts": {
+    "dev": "node --conditions=development --import tsx src/main.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "ts-agent-lib": "file:../..",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3"
+  }
+}

@@ -12,6 +12,8 @@ This document captures a real-world pattern one team used with `ts-agent-lib`:
 
 The example intentionally avoids any domain- or application-specific logic. Replace the placeholder work in handlers with your own calls.
 
+For a concrete, adapter-first NER labeling scaffold with strict structured outputs and Jinja-style prompt templating, see `examples/ner-labeler/README.md`.
+
 ## Core Concepts
 
 - `Step`: a unit of work with an `id`, `action`, optional `deps`, and optional `payload`.
@@ -184,6 +186,8 @@ try {
   await logger.stop();
 }
 ```
+
+If you only need event logs in NDJSON format, `JsonlEventObserver` is available as a built-in adapter.
 
 ## Cancellation
 
