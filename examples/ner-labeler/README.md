@@ -1,44 +1,122 @@
-# NER Labeler Scaffold (Adapter-First)
+# NER Labeler Example
 
-This example shows a production-style NER labeling workflow with:
+**If you're here from Khan, thanks so much. The codes, not great, I just figured I'd through something up so the concept is (slightly) more clear?**
 
-- a DAG plan that creates one OpenAI LLM step per label prompt file
-- strict structured output with JSON schema + zod validation
-- a merge step that depends on every label step before returning output
-- package-style SDK consumption (`import ... from "ts-agent-lib"`)
+## Description
 
-This is intentionally a different use case from the repository docs examples.
+Essentially, what we want is to use live inferenced data to generate structured training data for a downstream NER model. This example shows how to use `ts-agent-lib` to build a scaffold for this workflow, with:
 
-## Prompt-driven labels (no code edits)
+`npm run example:ner -- "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."`
 
-Labels are driven entirely by files under `prompts/labels/`.
+![Colored NER output preview](./docs/colored-output-example.svg)
 
-- Base prompt: `prompts/base_system.jinja`
-- Label prompts: `prompts/labels/*.jinja`
-- Label handle = filename (for example `person_name.jinja` -> `label=person_name`)
-- Label instructions = file body
-
-To add a label, add a new file like `prompts/labels/booking_occurred.jinja`.
-To remove a label, delete its file.
-
-The pipeline automatically:
-
-1. reads all label prompt files
-2. builds one DAG step per label
-3. runs all label steps in parallel
-4. runs a merge step that depends on all label steps
-
-`expert_role` is derived automatically as `${label} entity extraction`.
-
-## Why this structure
-
-- `src/pipeline.ts`: one `runNerLabeling(...)` function with clear plan-building + lambda handlers
-- `src/render.ts`: deterministic terminal color rendering for text spans and legend output
-- `prompts/prompt_handlers.ts`: zod-typed prompt handler list (`{ handler_name, system_prompt }[]`)
-- `OpenAiStructuredLlmClient` from `ts-agent-lib`: OpenAI structured-output adapter
-- `JsonlEventObserver` from `ts-agent-lib`: event telemetry adapter
-- `src/cli.ts`: input parsing and validation (one required text argument)
-- `src/env.ts`: lightweight `.env` loader
+```json
+{
+  "type": "step_completed",
+  "executionId": "9b2bbf73-a9d9-4a1d-8910-2445beb252df",
+  "ts": "2026-03-01T00:24:20.178Z",
+  "stepId": "merge_entity_labels",
+  "runInputText": "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam.",
+  "stepTelemetry": {
+    "stepId": "merge_entity_labels",
+    "action": "merge_entity_labels",
+    "input": {
+      "inputText": "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam.",
+      "dependencyStepIds": [
+        "extract:contact_handle",
+        "extract:location_reference",
+        "extract:person_name",
+        "extract:time_reference"
+      ],
+      "dependenciesByLabel": {
+        "contact_handle": {
+          "label": "contact_handle",
+          "matches": [
+            "@coach_sam"
+          ],
+          "confidence": 0.92
+        },
+        "location_reference": {
+          "label": "location_reference",
+          "matches": [
+            "at City Library"
+          ],
+          "confidence": 0.92
+        },
+        "person_name": {
+          "label": "person_name",
+          "matches": [
+            "Jordan Lee"
+          ],
+          "confidence": 0.92
+        },
+        "time_reference": {
+          "label": "time_reference",
+          "matches": [
+            "tomorrow",
+            "4:30 PM"
+          ],
+          "confidence": 0.9
+        }
+      }
+    },
+    "output": {
+      "inputText": "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam.",
+      "entities": {
+        "contact_handle": {
+          "label": "contact_handle",
+          "confidence": 0.92,
+          "spans": [
+            {
+              "text": "@coach_sam",
+              "start": 44,
+              "end": 54
+            }
+          ]
+        },
+        "location_reference": {
+          "label": "location_reference",
+          "confidence": 0.92,
+          "spans": [
+            {
+              "text": "at City Library",
+              "start": 11,
+              "end": 26
+            }
+          ]
+        },
+        "person_name": {
+          "label": "person_name",
+          "confidence": 0.92,
+          "spans": [
+            {
+              "text": "Jordan Lee",
+              "start": 0,
+              "end": 10
+            }
+          ]
+        },
+        "time_reference": {
+          "label": "time_reference",
+          "confidence": 0.9,
+          "spans": [
+            {
+              "text": "tomorrow",
+              "start": 27,
+              "end": 35
+            },
+            {
+              "text": "4:30 PM",
+              "start": 36,
+              "end": 43
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
 
 ## Run (no build step)
 
@@ -59,13 +137,13 @@ cp examples/ner-labeler/.env.example examples/ner-labeler/.env
 4. Run with required input text:
 
 ```bash
-npm run example:ner -- "Find entities in this text: Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."
+npm run example:ner -- "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."
 ```
 
 Or run directly from the workspace package:
 
 ```bash
-npm run --workspace @ts-agent-lib/example-ner-labeler dev -- "..."
+npm run --workspace @ts-agent-lib/example-ner-labeler dev -- "Jordan Lee at City Library tomorrow 4:30 PM @coach_sam."
 ```
 
 ## Required input contract
@@ -86,18 +164,15 @@ The final merged `TrainingRecord` is keyed by label name and each label contains
 - `confidence`
 - `spans`: `[{ text, start, end }]` where `start` and `end` are character indexes in `inputText`
 
-CLI output then renders:
-
-- `Colored input text`: original input text highlighted with a stable color per label
-- `Key`: swatches + label names (and an overlap swatch for regions with 2+ labels)
-
 ## Output files
 
 - event telemetry: `examples/ner-labeler/output/events.ndjson`
 
-`events.ndjson` includes step completion payloads, including the final merged training record from `merge_entity_labels`.
+`events.ndjson` is enriched per event with:
 
-## Notes for production
-
-- Build downstream ingestion from observer output (`events.ndjson`) into S3/Kafka/Snowflake.
-- Keep `response_format.json_schema.strict = true` and zod parsing to enforce runtime contracts.
+- `runInputText`: original input text passed to the run
+- `stepTelemetry` on step events:
+  - `input` (model/system prompt/user prompt/schema for extract steps; dependency inputs for merge step)
+  - `output` (raw extraction result or final merged `TrainingRecord`)
+  - `error` (if the step failed before producing output)
+- `stepTelemetryById` on execution completion/cancellation for full-run step I/O summary

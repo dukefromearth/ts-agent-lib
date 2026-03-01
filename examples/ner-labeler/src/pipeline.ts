@@ -1,30 +1,24 @@
-import { DagExecutor, PlanBuilder, StepStatus, raiseIfFailed } from "ts-agent-lib";
+import { DagExecutor, PlanBuilder, raiseIfFailed } from "ts-agent-lib";
 import type { ExecuteOptions, StepHandler, StructuredLlmClient } from "ts-agent-lib";
 import { loadPromptHandlers } from "../prompts/prompt_handlers.ts";
+import { emitStepTelemetry, type StepTelemetrySink } from "./events.js";
+import { InferenceInputSchema, TrainingRecordSchema, type InferenceInput, type TrainingRecord } from "./types.js";
 import {
-  InferenceInputSchema,
-  LabelExtractionSchema,
-  TaggedEntityByLabelSchema,
-  TrainingRecordSchema,
-  type EntitySpan,
-  type InferenceInput,
-  type LabelExtraction,
-  type TrainingRecord
-} from "./types.js";
+  buildInitialStepTelemetry,
+  createExtractHandler,
+  createMergeHandler,
+  toExtractStepId,
+  type LabelStep
+} from "./builders.js";
 
 const MERGE_STEP_ID = "merge_entity_labels";
-const EXTRACT_STEP_PREFIX = "extract:";
-
-interface LabelStep {
-  label: string;
-  systemPrompt: string;
-}
 
 export interface RunNerLabelingParams {
   input: InferenceInput;
   model: string;
   llm: StructuredLlmClient;
   onEvent?: ExecuteOptions["onEvent"];
+  onStepTelemetry?: StepTelemetrySink;
   execution?: {
     maxParallelSteps?: number;
     failFast?: boolean;
@@ -39,6 +33,13 @@ export async function runNerLabeling(params: RunNerLabelingParams): Promise<Trai
     systemPrompt: system_prompt
   }));
 
+  await seedInitialStepTelemetry({
+    input,
+    model: params.model,
+    labelSteps,
+    onStepTelemetry: params.onStepTelemetry
+  });
+
   const executor = new DagExecutor({
     maxParallelSteps: params.execution?.maxParallelSteps ?? 8,
     failFast: params.execution?.failFast ?? true
@@ -50,7 +51,8 @@ export async function runNerLabeling(params: RunNerLabelingParams): Promise<Trai
       input,
       model: params.model,
       llm: params.llm,
-      labelSteps
+      labelSteps,
+      onStepTelemetry: params.onStepTelemetry
     }),
     { onEvent: params.onEvent }
   );
@@ -85,160 +87,33 @@ function createHandlers(params: {
   model: string;
   llm: StructuredLlmClient;
   labelSteps: LabelStep[];
+  onStepTelemetry?: StepTelemetrySink;
 }): Record<string, StepHandler> {
   const handlers: Record<string, StepHandler> = {
-    [MERGE_STEP_ID]: async (step, ctx) => {
-      const entities = TaggedEntityByLabelSchema.parse(
-        Object.fromEntries(
-          params.labelSteps.map((labelStep) => {
-            const extraction = parseLabelExtraction(
-              ctx.requireResult(toExtractStepId(labelStep.label)).output,
-              labelStep.label
-            );
-
-            return [
-              labelStep.label,
-              {
-                label: extraction.label,
-                confidence: extraction.confidence,
-                spans: buildTaggedSpans(extraction.matches, params.input)
-              }
-            ];
-          })
-        )
-      );
-
-      return {
-        stepId: step.id,
-        status: StepStatus.COMPLETED,
-        output: TrainingRecordSchema.parse({
-          inputText: params.input,
-          entities
-        })
-      };
-    }
+    [MERGE_STEP_ID]: createMergeHandler(params)
   };
 
   for (const labelStep of params.labelSteps) {
-    const stepId = toExtractStepId(labelStep.label);
-
-    handlers[stepId] = async (step) => {
-      const extraction = parseLabelExtraction(
-        await params.llm.inferStructured<LabelExtraction>({
-          model: params.model,
-          systemPrompt: labelStep.systemPrompt,
-          userPrompt: params.input,
-          schema: {
-            name: `ner_label_extraction_${toSchemaToken(labelStep.label)}`,
-            schema: buildLabelExtractionJsonSchema(labelStep.label)
-          },
-          outputSchema: LabelExtractionSchema
-        }),
-        labelStep.label
-      );
-
-      assertMatchesAreExact(extraction, params.input);
-
-      return {
-        stepId: step.id,
-        status: StepStatus.COMPLETED,
-        output: extraction
-      };
-    };
+    handlers[toExtractStepId(labelStep.label)] = createExtractHandler(params, labelStep);
   }
 
   return handlers;
 }
 
-function parseLabelExtraction(value: unknown, expectedLabel: string): LabelExtraction {
-  const extraction = LabelExtractionSchema.parse(value);
-  assertExpectedLabel(extraction, expectedLabel);
-  return extraction;
-}
-
-function assertExpectedLabel(extraction: LabelExtraction, expectedLabel: string): void {
-  if (extraction.label !== expectedLabel) {
-    throw new Error(`label mismatch: expected '${expectedLabel}', got '${extraction.label}'`);
+async function seedInitialStepTelemetry(params: {
+  input: InferenceInput;
+  model: string;
+  labelSteps: LabelStep[];
+  onStepTelemetry?: StepTelemetrySink;
+}): Promise<void> {
+  for (const telemetry of buildInitialStepTelemetry({
+    input: params.input,
+    model: params.model,
+    labelSteps: params.labelSteps,
+    mergeStepId: MERGE_STEP_ID
+  })) {
+    await emitStepTelemetry(params.onStepTelemetry, {
+      ...telemetry
+    })
   }
-}
-
-function buildTaggedSpans(matches: string[], input: InferenceInput): EntitySpan[] {
-  const exactMatches = matches.filter((candidate) => candidate.toLowerCase() !== "none");
-  if (exactMatches.length === 0) {
-    return [];
-  }
-
-  const seen = new Set<string>();
-  const spans: EntitySpan[] = [];
-
-  for (const candidate of exactMatches) {
-    const regex = new RegExp(escapeRegex(candidate), "g");
-
-    for (const result of input.matchAll(regex)) {
-      if (result.index === undefined) {
-        continue;
-      }
-
-      const start = result.index;
-      const end = start + result[0].length;
-      const key = `${start}:${end}:${result[0]}`;
-
-      if (seen.has(key)) {
-        continue;
-      }
-
-      seen.add(key);
-      spans.push({ text: result[0], start, end });
-    }
-  }
-
-  return spans;
-}
-
-function assertMatchesAreExact(extraction: LabelExtraction, input: InferenceInput): void {
-  for (const candidate of extraction.matches) {
-    if (candidate.toLowerCase() === "none") {
-      continue;
-    }
-
-    if (!input.includes(candidate)) {
-      throw new Error(`extracted match '${candidate}' is not an exact substring of the input text`);
-    }
-  }
-}
-
-function toExtractStepId(label: string): string {
-  return `${EXTRACT_STEP_PREFIX}${label}`;
-}
-
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function toSchemaToken(input: string): string {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "") || "label";
-}
-
-function buildLabelExtractionJsonSchema(label: string): Record<string, unknown> {
-  return {
-    type: "object",
-    additionalProperties: false,
-    required: ["label", "matches", "confidence"],
-    properties: {
-      label: { type: "string", enum: [label] },
-      matches: {
-        type: "array",
-        minItems: 1,
-        items: { type: "string" }
-      },
-      confidence: {
-        type: "number",
-        minimum: 0,
-        maximum: 1
-      }
-    }
-  };
 }

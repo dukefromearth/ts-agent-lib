@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="320" viewBox="0 0 1180 320" role="img" aria-labelledby="title desc">
+  <title id="title">NER labeled text preview</title>
+  <desc id="desc">Colored text output preview with label key and overlap color.</desc>
+
+  <rect x="0" y="0" width="1180" height="320" fill="#0b1020" />
+  <rect x="24" y="24" width="1132" height="272" rx="12" fill="#111a33" stroke="#2b3553" />
+
+  <text x="44" y="58" fill="#dbe4ff" font-family="monospace" font-size="24" font-weight="700">Key:</text>
+
+  <rect x="44" y="74" width="26" height="24" rx="4" fill="rgb(49,227,54)" />
+  <text x="82" y="92" fill="#ffffff" font-family="monospace" font-size="20">contact_handle (1 span)</text>
+
+  <rect x="44" y="106" width="26" height="24" rx="4" fill="rgb(151,35,209)" />
+  <text x="82" y="124" fill="#ffffff" font-family="monospace" font-size="20">location_reference (1 span)</text>
+
+  <rect x="44" y="138" width="26" height="24" rx="4" fill="rgb(44,221,156)" />
+  <text x="82" y="156" fill="#ffffff" font-family="monospace" font-size="20">person_name (1 span)</text>
+
+  <rect x="44" y="170" width="26" height="24" rx="4" fill="rgb(200,228,63)" />
+  <text x="82" y="188" fill="#ffffff" font-family="monospace" font-size="20">time_reference (2 spans)</text>
+
+  <rect x="44" y="202" width="26" height="24" rx="4" fill="rgb(255,140,0)" />
+  <text x="82" y="220" fill="#ffffff" font-family="monospace" font-size="20">overlap (2+ labels)</text>
+
+  <text x="44" y="264" fill="#dbe4ff" font-family="monospace" font-size="24" font-weight="700">Colored input text:</text>
+
+  <rect x="44" y="277" width="130" height="28" rx="4" fill="rgb(44,221,156)" />
+  <rect x="226" y="277" width="156" height="28" rx="4" fill="rgb(151,35,209)" />
+  <rect x="395" y="277" width="104" height="28" rx="4" fill="rgb(200,228,63)" />
+  <rect x="512" y="277" width="91" height="28" rx="4" fill="rgb(200,228,63)" />
+  <rect x="616" y="277" width="130" height="28" rx="4" fill="rgb(49,227,54)" />
+
+  <text y="298" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="22" xml:space="preserve">
+    <tspan x="44" textLength="130" lengthAdjust="spacingAndGlyphs" fill="#000000">Jordan Lee</tspan>
+    <tspan x="174" textLength="52" lengthAdjust="spacingAndGlyphs" fill="#dbe4ff"> at </tspan>
+    <tspan x="226" textLength="156" lengthAdjust="spacingAndGlyphs" fill="#ffffff">City Library</tspan>
+    <tspan x="382" textLength="13" lengthAdjust="spacingAndGlyphs" fill="#dbe4ff"> </tspan>
+    <tspan x="395" textLength="104" lengthAdjust="spacingAndGlyphs" fill="#000000">tomorrow</tspan>
+    <tspan x="499" textLength="13" lengthAdjust="spacingAndGlyphs" fill="#dbe4ff"> </tspan>
+    <tspan x="512" textLength="91" lengthAdjust="spacingAndGlyphs" fill="#000000">4:30 PM</tspan>
+    <tspan x="603" textLength="13" lengthAdjust="spacingAndGlyphs" fill="#dbe4ff"> </tspan>
+    <tspan x="616" textLength="130" lengthAdjust="spacingAndGlyphs" fill="#ffffff">@coach_sam</tspan>
+    <tspan x="746" textLength="13" lengthAdjust="spacingAndGlyphs" fill="#dbe4ff">.</tspan>
+  </text>
+</svg>

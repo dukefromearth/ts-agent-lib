@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { JsonlEventObserver, OpenAiStructuredLlmClient } from "ts-agent-lib";
 import { UsageError, parseInputArgs, usageText } from "./cli.js";
 import { loadEnvFile } from "./env.js";
+import { createNerEventSerializer, upsertStepTelemetry, type NerStepTelemetry } from "./events.js";
 import { runNerLabeling } from "./pipeline.js";
 import { renderNerOutput } from "./render.js";
 
@@ -29,33 +30,36 @@ async function main(): Promise<void> {
   await mkdir(outputDir, { recursive: true });
 
   const llm = new OpenAiStructuredLlmClient();
+  const telemetryByStepId = new Map<string, NerStepTelemetry>();
 
-  const observer = new JsonlEventObserver(eventsPath);
-  await observer.start();
+  const observer = new JsonlEventObserver(eventsPath, {
+    serialize: createNerEventSerializer({
+      inputText: input,
+      telemetryByStepId
+    })
+  });
 
-  try {
-    const record = await runNerLabeling({
-      input,
-      model,
-      llm,
-      onEvent: (event) => observer.onEvent(event),
-      execution: {
-        maxParallelSteps: 6,
-        failFast: true
-      }
-    });
+  const record = await runNerLabeling({
+    input,
+    model,
+    llm,
+    onStepTelemetry: (telemetry) => {
+      upsertStepTelemetry(telemetryByStepId, telemetry);
+    },
+    onEvent: (event) => observer.onEvent(event),
+    execution: {
+      maxParallelSteps: 6,
+      failFast: true
+    }
+  });
 
-    const rendered = renderNerOutput(record);
-    console.log(`Execution events written to: ${eventsPath}`);
-    console.log("Model:", model);
-    console.log("\nKey:");
-    console.log(rendered.key);
-    console.log("\n");
-    console.log(rendered.coloredInputText);
-
-  } finally {
-    await observer.stop();
-  }
+  const rendered = renderNerOutput(record);
+  console.log("Model:", model);
+  console.log("\nColored input text:");
+  console.log(rendered.coloredInputText);
+  console.log("\nKey:");
+  console.log(rendered.key);
+  console.log(`Execution events written to: ${eventsPath}`);
 }
 
 main().catch((error) => {
